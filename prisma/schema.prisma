@@ -8,18 +8,18 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -35,13 +35,14 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String          @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?         @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
+  projects      ProjectMember[]
 }
 
 model VerificationToken {
@@ -50,4 +51,76 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Project {
+  id             String          @id @default(cuid())
+  name           String          @unique
+  timestamp      DateTime        @default(now())
+  projectMembers ProjectMember[]
+  types          Type[]
+  devices        Device[]
+}
+
+model ProjectMember {
+  id        String      @id @default(cuid())
+  userId    String
+  projectId String
+  role      ProjectRole
+  user      User        @relation(fields: [userId], references: [id])
+  project   Project     @relation(fields: [projectId], references: [id])
+}
+
+enum ProjectRole {
+  VIEWER
+  MAINTAINER
+}
+
+model Type {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id])
+  messages  Message[]
+}
+
+model Device {
+  id        String     @id @default(cuid())
+  name      String
+  projectId String
+  archived  Boolean    @default(false)
+  timestamp DateTime   @default(now())
+  project   Project    @relation(fields: [projectId], references: [id])
+  instances Instance[]
+  apiKeys   ApiKey[]
+
+  @@unique([name, projectId])
+}
+
+model Instance {
+  id        String    @id @default(cuid())
+  key       String    @unique
+  timestamp DateTime  @default(now())
+  deviceId  String
+  device    Device    @relation(fields: [deviceId], references: [id])
+  messages  Message[]
+}
+
+model ApiKey {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  timestamp DateTime @default(now())
+  expires   DateTime
+  deviceId  String
+  device    Device   @relation(fields: [deviceId], references: [id])
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  data       Json
+  timestamp  DateTime @default(now())
+  typeId     String
+  type       Type     @relation(fields: [typeId], references: [id])
+  instanceId String
+  instance   Instance @relation(fields: [instanceId], references: [id])
 }
