@@ -36,10 +36,9 @@ model Session {
 
 model User {
   id            String          @id @default(cuid())
-  name          String?
   email         String?         @unique
   emailVerified DateTime?
-  image         String?
+  admin         Boolean         @default(false)
   accounts      Account[]
   sessions      Session[]
   projects      ProjectMember[]
@@ -108,11 +107,14 @@ model Instance {
 
 model ApiKey {
   id        String   @id @default(cuid())
+  name      String
   key       String   @unique
   timestamp DateTime @default(now())
-  expires   DateTime
+  active    Boolean  @default(true)
   deviceId  String
   device    Device   @relation(fields: [deviceId], references: [id])
+
+  @@unique([deviceId, name])
 }
 
 model Message {
