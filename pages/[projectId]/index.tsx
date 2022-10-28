@@ -18,7 +18,7 @@ const Home: NextPage = () => {
   const [userrole, setUserrole] = useState<"VIEWER" | "MAINTAINER">();
 
   const [listType, setListType] = useState<"CARDS" | "LIST">("CARDS")
-  const [mainConetentType, setMainContentType] = useState<"ADDDEVICE" | "DEVICES" | "MEMBERS" | "TYPES">("DEVICES")
+  const [mainConetentType, setMainContentType] = useState<"DEVICES" | "MEMBERS" | "TYPES">("DEVICES")
 
   const {data: session, status} = useSession()
 
@@ -146,14 +146,11 @@ const Home: NextPage = () => {
           <div style={{display: "flex", justifyContent: "space-between"}}>
             <h1>{currentProject?.name}</h1>
             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-              {mainConetentType != "ADDDEVICE" ? (
-                <div className={styles.card} style={{padding: "0.5em", display: "flex", alignItems: "center"}}>
-                  <MdDashboard size={"2em"} title="cards" className={styles.clickable} onClick={() => setListType("CARDS")}/>
-                  <MdList size={"2em"} title="List" className={styles.clickable} onClick={() => setListType("LIST")}/>
-                </div>
-              ) : <></>}
+              <div className={styles.card} style={{padding: "0.5em", display: "flex", alignItems: "center"}}>
+                <MdDashboard size={"2em"} title="cards" className={styles.clickable} onClick={() => setListType("CARDS")}/>
+                <MdList size={"2em"} title="List" className={styles.clickable} onClick={() => setListType("LIST")}/>
+              </div>
               <div className={styles.card} style={{padding: "0.5em", display: "flex", alignItems: "center", flexWrap: "wrap"}}>
-                {userrole == "MAINTAINER" ? (<MdAdd  size={"2em"} title="Add a Device" className={styles.clickable} onClick={() => setMainContentType("ADDDEVICE")}/>): <></>}
                 <MdStorage size={"2em"} title="Devices" className={styles.clickable} onClick={() => setMainContentType("DEVICES")}/>
                 <MdPeople size={"2em"} title="Project Members" className={styles.clickable} onClick={() => setMainContentType("MEMBERS")}/>
                 <IoMdPricetags size={"2em"} title="Log Types" className={styles.clickable} onClick={() => setMainContentType("TYPES")}/>
@@ -163,7 +160,13 @@ const Home: NextPage = () => {
 
           {mainConetentType == "DEVICES" ? (
           <div>
-            <h2>Devices:</h2>
+            <div style={{display: "flex", justifyContent: "space-between"}}>
+              <h2>Devices of this Project:</h2>
+              <div>
+                <input placeholder='Name'></input>
+                <button>Add Device</button>
+              </div>
+            </div>
             {currentProject?.devices.map((element, key) => (
               <div>
                 {listType == "CARDS" ? (
@@ -176,16 +179,16 @@ const Home: NextPage = () => {
             ))}
           </div>
           ) : <></>}
-          {mainConetentType == "ADDDEVICE" ? (
-            <div>
-              <h2>Add a new Device:</h2>
-              <input placeholder="Name of the Device"></input>
-              <button>Add Device</button>
-            </div>
-          ): <></>}
+
           {mainConetentType == "MEMBERS" ? (
             <div>
-              <h2>The Members of this Project:</h2>
+              <div style={{display: "flex", justifyContent: "space-between"}}>
+                <h2>Members of the Project:</h2>
+                <div>
+                  <input placeholder='Name'></input>
+                  <button>Add Member</button>
+                </div>
+              </div>
               {listType == "CARDS" ? (
                 <div style={{display: "flex", flexWrap: "wrap", justifyContent: "space-evenly", alignContent: "space-around"}}>
                   {currentProject?.projectMembers.map((element, key) => (
@@ -203,8 +206,9 @@ const Home: NextPage = () => {
                       </div>
                     </div>
                   ))}
-                  </div>
-                ) : <></>}
+                </div>
+              ) : <></>}
+
               {listType == "LIST" ? (
                 <table>
                   <thead>
@@ -236,9 +240,64 @@ const Home: NextPage = () => {
               ): <></>}
             </div>
           ): <></>}
+          
           {mainConetentType == "TYPES" ? (
             <div>
-              <h2>The Types of this Project:</h2>
+              <div style={{display: "flex", justifyContent: "space-between"}}>
+                <h2>The Types of this Project:</h2>
+                <div>
+                  <input placeholder='Name'></input>
+                  <button>Add Type</button>
+                </div>
+              </div>
+              {listType == "CARDS" ? (
+                <div style={{display: "flex", flexWrap: "wrap", justifyContent: "space-evenly", alignContent: "space-around"}}>
+                  {currentProject?.types.map((element, key) => (
+                    <div key={key}>
+                      <div className={styles.card}>
+                        <p>{element.name}</p>
+                        {userrole == "MAINTAINER" ? (
+                          <select defaultValue={element.name} onChange={(e) => updateUserRole(element.id, e.target.value)}>
+                            <option value={"VIEWER"}>VIEWER</option>
+                            <option value={"MAINTAINER"}>MAINTAINER</option>
+                          </select>
+                        ):(
+                          <label>{element.name}</label>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                  </div>
+                ) : <></>}
+              {listType == "LIST" ? (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>No.</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentProject?.types.map((element, key) => (
+                      <tr key={key}>
+                        <td>{key+1}</td>
+                        <td>{element.name}</td>
+                        <td>
+                        {userrole == "MAINTAINER" ? (
+                          <select defaultValue={element.name} onChange={(e) => updateUserRole(element.id, e.target.value)}>
+                            <option value={"VIEWER"}>VIEWER</option>
+                            <option value={"MAINTAINER"}>MAINTAINER</option>
+                          </select>
+                        ):(
+                          <label>{element.name}</label>
+                        )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ): <></>}
             </div>
           ): <></>}
         </div>
@@ -246,7 +305,7 @@ const Home: NextPage = () => {
 
       <footer className={styles.footer}>
           <span className={styles.logo}>
-            &copy; 2022 Openlogger
+            &copy; 2022 Openlogger | <label onClick={() => Router.push("https://github.com/jokerjoker10/openlogger")} style={{cursor: "pointer"}}>github.com/jokerjoker10/openlogger</label>
           </span>
       </footer>
     </div>
