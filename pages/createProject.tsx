@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [projectList, setProjectList] = useState<Array<Prisma.Project>>()
-
+    const [projectName, setProjectName] = useState<string>()
   const {data: session, status} = useSession()
 
   useEffect(() => {
@@ -33,6 +33,16 @@ const Home: NextPage = () => {
     })
   }, [])
   
+  function createNewProject(){
+    axios.post("/api/project/", {name: projectName})
+    .then((data) => {
+        
+        Router.push("/" + data.data.id)        
+    })
+    .catch((error) => {
+
+    })
+  }
 
   if(status === "loading"){
     return(<p>Loading</p>)
@@ -74,11 +84,6 @@ const Home: NextPage = () => {
           <div className={styles.sidemenue}>
             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", flexDirection: "row"}}>
               Projects 
-              <div className={styles.clickable} onClick={() => Router.push("/createProject")}>
-                <div className={styles.card} style={{padding: "0.5em", margin: 0}}>
-                  Add Project<MdAdd size="1em"/>
-                </div>
-              </div>
             </div>
             
             <div style={{
@@ -98,7 +103,9 @@ const Home: NextPage = () => {
         ) : <></>}
 
         <div className={styles.card} style={{width: "inherit"}}>
-          Main Content
+            <h1>Create a new Project</h1>
+            <input type="text" placeholder='Name' onChange={e => setProjectName(e.target.value)}></input>
+            <button type="submit" onClick={() => createNewProject()}>Create Project</button>
         </div>
       </main>
 
