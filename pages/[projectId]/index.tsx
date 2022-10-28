@@ -152,7 +152,7 @@ const Home: NextPage = () => {
                   <MdList size={"2em"} title="List" className={styles.clickable} onClick={() => setListType("LIST")}/>
                 </div>
               ) : <></>}
-              <div className={styles.card} style={{padding: "0.5em", display: "flex", alignItems: "center"}}>
+              <div className={styles.card} style={{padding: "0.5em", display: "flex", alignItems: "center", flexWrap: "wrap"}}>
                 {userrole == "MAINTAINER" ? (<MdAdd  size={"2em"} title="Add a Device" className={styles.clickable} onClick={() => setMainContentType("ADDDEVICE")}/>): <></>}
                 <MdStorage size={"2em"} title="Devices" className={styles.clickable} onClick={() => setMainContentType("DEVICES")}/>
                 <MdPeople size={"2em"} title="Project Members" className={styles.clickable} onClick={() => setMainContentType("MEMBERS")}/>
@@ -206,7 +206,7 @@ const Home: NextPage = () => {
                   </div>
                 ) : <></>}
               {listType == "LIST" ? (
-                <table width={"100%"}>
+                <table>
                   <thead>
                     <tr>
                       <th>No.</th>
